@@ -23,7 +23,7 @@ Star schema with 3 tables:
 4. Premium/Gold Support is #1 Gold complaint — users paid for better support, didn't get it
 
 ## Dashboard
-*[Link to published Power BI - ADD YOUR LINK HERE]*
+*[Link to published Power BI - SOON!]*
 
 ## LinkedIn Series
 Follow the full analysis series on LinkedIn — *[Link to your LinkedIn profile - ADD YOUR LINK HERE]*
