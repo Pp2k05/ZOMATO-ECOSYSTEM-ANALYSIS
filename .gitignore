@@ -1,11 +1,18 @@
-# Ignore heavy raw data and logs
-output/
-*.log
-refill_targets.json
-*.pdf
+# Ignore absolutely everything by default
+*
 
-# Ignore system/cache files
-node_modules/
-__pycache__/
-*.pyc
-Thumbs.db
+# Allow only the professional portfolio files
+!README.md
+!.gitignore
+
+!Data/
+!Data/**
+
+!Power Query/
+!Power Query/**
+
+!DAX Measures/
+!DAX Measures/**
+
+!Dashboard/
+!Dashboard/**
