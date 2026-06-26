@@ -1,0 +1,19 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore python cache
+__pycache__/
+*.pyc
+
+# Ignore all logs
+*.log
+
+# Ignore large raw data outputs (only upload the sample CSV)
+output/
+refill_targets.json
+
+# Ignore temporary pdf files 
+*.pdf
+
+# Windows cache
+Thumbs.db

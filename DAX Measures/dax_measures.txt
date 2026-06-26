@@ -1,0 +1,13 @@
+/*
+Place your 6 DAX Measures here!
+Example format:
+
+1. Negative Sentiment Rate
+--------------------------
+Calculates the percentage of negative reviews out of total reviews.
+Negative_Rate = 
+DIVIDE(
+    CALCULATE(COUNTROWS(fact_l1_tags), fact_l1_tags[Sentiment] = "Negative"),
+    COUNTROWS(fact_l1_tags)
+)
+*/

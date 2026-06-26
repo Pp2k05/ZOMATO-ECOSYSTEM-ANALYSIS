@@ -1,0 +1,11 @@
+/*
+Paste your Power Query M Code or a screenshot of your Applied Steps here.
+
+Example:
+let
+    Source = Csv.Document(File.Contents("sample_dataset_100_rows.csv"),[Delimiter=",", Columns=14, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Review_ID", type text}, {"Score", Int64.Type}})
+in
+    #"Changed Type"
+*/
