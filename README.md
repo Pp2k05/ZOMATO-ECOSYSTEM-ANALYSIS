@@ -5,6 +5,8 @@ Independent analysis of 45,000+ public data points across Zomato, Blinkit and Di
 
 ## Tools Used
 Power BI | Power Query | DAX | Excel | Python (Scraping & NLP)
+<img width="1327" height="765" alt="image" src="https://github.com/user-attachments/assets/a8d57679-2a95-4d7d-ab29-ac802634eb8c" />
+
 
 ## Data Sources
 Google Play Store | Apple App Store | Reddit
