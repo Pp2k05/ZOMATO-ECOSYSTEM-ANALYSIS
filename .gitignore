@@ -1,7 +1,7 @@
 # Ignore absolutely everything by default
 *
 
-# Allow only the professional portfolio files
+# Allow the professional portfolio folders
 !README.md
 !.gitignore
 
@@ -16,3 +16,8 @@
 
 !Dashboard/
 !Dashboard/**
+
+# Allow ONLY the pure scrapers and their test files
+!scrapers/
+!scrapers/**
+!test_*.py
