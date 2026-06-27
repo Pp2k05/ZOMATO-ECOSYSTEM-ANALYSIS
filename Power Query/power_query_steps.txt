@@ -1,11 +1,22 @@
-/*
-Paste your Power Query M Code or a screenshot of your Applied Steps here.
+## Data Transformation & Power Query (ETL) Steps
 
-Example:
-let
-    Source = Csv.Document(File.Contents("sample_dataset_100_rows.csv"),[Delimiter=",", Columns=14, Encoding=1252, QuoteStyle=QuoteStyle.None]),
-    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Review_ID", type text}, {"Score", Int64.Type}})
-in
-    #"Changed Type"
-*/
+The raw review dataset was processed using Power BI's Power Query Editor to clean, normalize, and structure the data into a performance-optimized Star Schema. 
+
+### 1. Initial Data Cleaning & Standardization
+* **Promote Headers:** Applied the first row of the raw dataset as column headers.
+* **Data Type Enforcement:** Explicitly defined data types for all columns to prevent DAX calculation errors (e.g., locking `Date` to Date format, `Review_ID` to Text, and metrics to Whole Numbers).
+* **Whitespace Trimming:** Applied the `Trim` and `Clean` functions to the `Text` and `L2_Specific_Issue` columns to remove hidden trailing spaces that break relational joins and string-matching logic.
+
+### 2. Building the Core Dimension Table (`Dim_Reviews_Core`)
+* **Reference Branching:** Created a new query referencing the cleaned base data to act as the primary lookup table.
+* **Column Reduction:** Removed all unnecessary analytical tags, keeping only the primary descriptors: `Review_ID`, `Date`, `Sentiment`, `Text`, `Source`, `Username`, and `Platform`.
+* **Deduplication:** Applied `Remove Duplicates` on the `Review_ID` column to establish a strict primary key, ensuring a 1-to-Many relationship could be built in the data model without ambiguity.
+
+### 3. Building the Analytical Fact Table (`Fact_L2_Tags`)
+* **Reference Branching:** Created a second query from the base data to handle the granular operational tags.
+* **Foreign Key Setup:** Retained `Review_ID` to link back to the core dimension table.
+* **Dimensional Filtering:** Retained the `L2_Specific_Issue` column and filtered out `null` or blank records to ensure operational visualizations only counted legitimate defect tags.
+
+### 4. Model Loading
+* **Query Optimization:** Disabled the load for the initial raw base query to reduce `.pbix` file size and memory consumption.
+* **Data Model Integration:** Loaded only the optimized `Dim_Reviews_Core` and `Fact_L2_Tags` tables into the Power BI Data Model.
