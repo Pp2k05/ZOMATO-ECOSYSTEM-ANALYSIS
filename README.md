@@ -2,6 +2,8 @@
 
 ## Project Overview
 Independent analysis of 45,000+ public data points across Zomato, Blinkit and District — Dec 2025 to Jun 2026.
+<img width="1265" height="708" alt="image" src="https://github.com/user-attachments/assets/a1882e64-8bd7-46b7-bb6f-cc03c284b875" />
+
 
 ## Tools Used
 Power BI | Power Query | DAX | Excel | Python (Scraping & NLP)
