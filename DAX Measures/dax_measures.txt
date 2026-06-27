@@ -1,13 +1,162 @@
-/*
-Place your 6 DAX Measures here!
-Example format:
+# DAX Measures — Zomato Sentiment Analysis
+# Author: Parthiv Prakash | VIT Vellore
+# Project: Zomato Ecosystem Sentiment Analysis
+# Period: Dec 2025 – Jun 2026
+# Data Model: Star Schema
+#   Dim_Reviews_Core → Fact_L1_Tags (one-to-many)
+#   Dim_Reviews_Core → Fact_L2_Tags (one-to-many)
+#   Connected via Review_ID
 
-1. Negative Sentiment Rate
---------------------------
-Calculates the percentage of negative reviews out of total reviews.
-Negative_Rate = 
+# ================================================
+# MEASURE 1 — OVERALL NEGATIVITY %
+# ================================================
+# Purpose: Calculates what % of total reviews 
+#          are negative month on month.
+# Used in: Line chart (negativity trend visual)
+# Why DATE filter: Raw data contained reviews 
+#          going back to 2018. We restrict to 
+#          Dec 2025 onwards for clean analysis.
+# Table used: Dim_Reviews_Core — base table 
+#          with one row per review.
+
+Negativity_percent = 
 DIVIDE(
-    CALCULATE(COUNTROWS(fact_l1_tags), fact_l1_tags[Sentiment] = "Negative"),
-    COUNTROWS(fact_l1_tags)
+    COUNTROWS(
+        FILTER(
+            Dim_Reviews_Core,
+            Dim_Reviews_Core[Sentiment] = "Negative" && 
+            Dim_Reviews_Core[Date] >= DATE(2025, 12, 1)
+        )
+    ),
+    COUNTROWS(
+        FILTER(
+            Dim_Reviews_Core,
+            Dim_Reviews_Core[Date] >= DATE(2025, 12, 1)
+        )
+    )
 )
-*/
+
+# ================================================
+# MEASURE 2 — TOTAL NEGATIVE REVIEWS (L1 LEVEL)
+# ================================================
+# Purpose: Counts distinct negative reviews 
+#          at the L1 category level.
+# Used in: Bar chart (Negative Reviews Categorized)
+# Why DISTINCTCOUNT: Fact_L1_Tags has multiple 
+#          rows per review (one per L1 tag).
+#          DISTINCTCOUNT ensures each review 
+#          is counted only once per category.
+# Why Fact_L1_Tags: L1 categories sit here 
+#          not in the base dim table.
+
+Total_Neg_Reviews = 
+CALCULATE(
+    DISTINCTCOUNT('Fact_L1_Tags'[Review_ID]),
+    FILTER(
+        'Fact_L1_Tags',
+        'Fact_L1_Tags'[Sentiment] = "Negative" && 
+        'Fact_L1_Tags'[Date] >= DATE(2025, 12, 01)
+    )
+)
+
+# ================================================
+# MEASURE 3 — ZOMATO GOLD NEGATIVE %
+# ================================================
+# Purpose: Calculates what % of all reviews 
+#          mentioning "zomato gold" are negative.
+# Used in: Gauge visual (Gold negativity meter)
+# Why CONTAINSSTRING on Text: Gold reviews are 
+#          identified by searching full review 
+#          text not a separate column.
+#          This captures organic mentions.
+# Depends on: Negative_Gold_Review + 
+#             Total_Gold_Reviews below.
+
+Gold_Negative_Percentage = 
+DIVIDE(
+    [Negative_Gold_Review], 
+    [Total_Gold_Reviews], 
+    0          -- Returns 0 if denominator is blank
+               -- Prevents divide by zero error
+)
+
+# ================================================
+# MEASURE 4 — NEGATIVE GOLD REVIEWS (numerator)
+# ================================================
+# Purpose: Counts distinct reviews that mention 
+#          "zomato gold" AND are negative.
+# Why DISTINCTCOUNT: Avoids double counting 
+#          reviews that appear multiple times.
+# Note: Case insensitive search — 
+#       "zomato gold" matches "Zomato Gold"
+
+Negative_Gold_Review = 
+CALCULATE(
+    DISTINCTCOUNT('Dim_Reviews_Core'[Review_ID]),
+    CONTAINSSTRING('Dim_Reviews_Core'[Text], "zomato gold"),
+    'Dim_Reviews_Core'[Sentiment] = "Negative"
+)
+
+# ================================================
+# MEASURE 5 — TOTAL GOLD REVIEWS (denominator)
+# ================================================
+# Purpose: Counts ALL reviews mentioning 
+#          "zomato gold" regardless of sentiment.
+# Used as: Denominator in Gold_Negative_Percentage
+# Why separate measure: Keeps Gold_Negative_% 
+#          clean and readable. Each measure 
+#          does one job only.
+
+Total_Gold_Reviews = 
+CALCULATE(
+    DISTINCTCOUNT('Dim_Reviews_Core'[Review_ID]),
+    CONTAINSSTRING('Dim_Reviews_Core'[Text], "zomato gold")
+)
+
+# ================================================
+# MEASURE 6 — GOLD L2 ISSUE BREAKDOWN %
+# ================================================
+# Purpose: Shows % breakdown of L2 specific 
+#          issues within negative Gold reviews.
+# Used in: Bar chart (Issues Behind Gold 
+#          Dissatisfaction)
+# Why VAR: Stores Gold review IDs once and 
+#          reuses them — cleaner and faster 
+#          than repeating FILTER logic.
+# Why REMOVEFILTERS: Removes the L2 category 
+#          filter from denominator so it counts 
+#          ALL Gold negative rows not just 
+#          the current L2 row being displayed.
+#          Without this every bar shows 100%.
+# Key insight this reveals: Premium Support 
+#          Failures is #1 Gold complaint — 
+#          Gold users paid for priority service 
+#          and didn't receive it.
+
+Gold_L2_% = 
+VAR GoldReviews = 
+    -- Step 1: Get all Review_IDs that mention 
+    -- "zomato gold" and are negative
+    CALCULATETABLE(
+        VALUES(Dim_Reviews_Core[Review_ID]),
+        CONTAINSSTRING(Dim_Reviews_Core[Text], "zomato gold"),
+        Dim_Reviews_Core[Sentiment] = "Negative"
+    )
+VAR TotalCount = 
+    -- Step 2: Count ALL L2 rows for those 
+    -- Review_IDs ignoring current L2 filter
+    CALCULATE(
+        COUNTROWS(Fact_L2_Tags),
+        REMOVEFILTERS(Fact_L2_Tags[L2_Specific_Issue]),
+        Fact_L2_Tags[Review_ID] IN GoldReviews
+    )
+RETURN
+-- Step 3: Divide current L2 count 
+-- by total to get %
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(Fact_L2_Tags),
+        Fact_L2_Tags[Review_ID] IN GoldReviews
+    ),
+    TotalCount
+) * 100
