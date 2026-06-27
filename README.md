@@ -26,4 +26,4 @@ Star schema with 3 tables:
 *[Link to published Power BI - SOON!]*
 
 ## LinkedIn Series
-Follow the full analysis series on LinkedIn — *[Link to your LinkedIn profile - ADD YOUR LINK HERE]*
+Follow the full analysis series on LinkedIn — https://www.linkedin.com/in/parthiv-prakash-23mis0140/)
